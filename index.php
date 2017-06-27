@@ -45,6 +45,16 @@ add_filter('acf/update_value/type=select', function ($value, $post_id, $field) {
 	return $value;
 }, 1, 3);
 
+add_filter('acf/format_value/type=select', function ($value, $post_id, $field) {
+	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
+		return $value;
+	}
+
+	$saved = get_option("acf_unforgettable_{$field['parent']}", []);
+
+	return $saved[$value];
+}, 10, 3);
+
 add_filter('acf/load_value/type=select', function ($value, $post_id, $field) {
 
 	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
