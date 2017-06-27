@@ -52,7 +52,7 @@ add_filter('acf/format_value/type=select', function ($value, $post_id, $field) {
 
 	$saved = get_option("acf_unforgettable_{$field['parent']}", []);
 
-	return $saved[$value];
+	return isset($saved[$value]) ? $saved[$value] : $value;
 }, 10, 3);
 
 add_filter('acf/load_value/type=select', function ($value, $post_id, $field) {
