@@ -29,20 +29,26 @@ add_action('acf/input/admin_enqueue_scripts', function () {
 });
 
 add_filter('acf/update_value/type=select', function ($value, $post_id, $field) {
-	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') !== false) {
-		$value = trim($value);
-		$saved = get_option("acf_unforgettable_{$field['parent']}", []);
-
-		$uniqID = uniqid();
-
-		if (!in_array($value, array_values($saved))) {
-			$saved[$uniqID] = $value;
-			update_option("acf_unforgettable_{$field['parent']}", $saved);
-
-			return $uniqID;
-		}
+	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
+		return $value;
 	}
-	return $value;
+
+	$value = trim($value);
+
+	$saved = array_filter(get_option("acf_unforgettable_{$field['key']}", []));
+
+	$uniqID = uniqid();
+
+	if (isset($saved[$value])) {
+		return $value;
+	}
+
+	if (!in_array($value, array_values($saved))) {
+		$saved[$uniqID] = $value;
+		update_option("acf_unforgettable_{$field['key']}", $saved);
+	}
+
+	return $uniqID;
 }, 1, 3);
 
 add_filter('acf/format_value/type=select', function ($value, $post_id, $field) {
@@ -50,28 +56,28 @@ add_filter('acf/format_value/type=select', function ($value, $post_id, $field) {
 		return $value;
 	}
 
-	$saved = get_option("acf_unforgettable_{$field['parent']}", []);
+	$saved = get_option("acf_unforgettable_{$field['key']}", []);
 
 	return isset($saved[$value]) ? $saved[$value] : $value;
 }, 10, 3);
 
 add_filter('acf/load_value/type=select', function ($value, $post_id, $field) {
-
 	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
 		return $value;
 	}
 
-	$saved = get_option("acf_unforgettable_{$field['parent']}", []);
+	$saved = array_filter(get_option("acf_unforgettable_{$field['key']}", []));
 
-	return isset($saved[$value]) ? $saved[$value] : '';
+	return $value;
 }, 1, 3);
 
 add_filter('acf/load_field', function ($field) {
-	if (strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
+	$isAcfPostType = isset($_GET['post']) && get_post_type(absint($_GET['post'])) == 'acf-field-group';
+
+	if ($isAcfPostType || strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
 		return $field;
 	}
-
-	$field['choices'] = get_option("acf_unforgettable_{$field['parent']}", []);;
+	$field['choices'] = array_filter(get_option("acf_unforgettable_{$field['key']}", []));
 
 	return $field;
 }, 90);
