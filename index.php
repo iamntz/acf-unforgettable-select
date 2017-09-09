@@ -58,7 +58,7 @@ add_filter('acf/format_value/type=select', function ($value, $post_id, $field) {
 
 	$saved = get_option("acf_unforgettable_{$field['key']}", []);
 
-	return isset($saved[$value]) ? $saved[$value] : $value;
+	return $saved[$value] ?? $value;
 }, 10, 3);
 
 add_filter('acf/load_value/type=select', function ($value, $post_id, $field) {
@@ -73,10 +73,12 @@ add_filter('acf/load_value/type=select', function ($value, $post_id, $field) {
 
 add_filter('acf/load_field', function ($field) {
 	$isAcfPostType = isset($_GET['post']) && get_post_type(absint($_GET['post'])) == 'acf-field-group';
+	$isAcfPostType = $isAcfPostType || isset($_GET['post_type']) && $_GET['post_type'] == 'acf-field-group';
 
 	if ($isAcfPostType || strpos($field['wrapper']['class'], 'js-unforgettable-select') === false) {
 		return $field;
 	}
+
 	$field['choices'] = array_filter(get_option("acf_unforgettable_{$field['key']}", []));
 
 	return $field;
