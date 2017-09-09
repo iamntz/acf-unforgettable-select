@@ -4,7 +4,7 @@
 Plugin Name: ACF Unforgetable Select
 Description: Allow custom select values and store them for reuse
 Author: Ionuț Staicu
-Version: 1.0.0
+Version: 1.0.1
 Author URI: http://ionutstaicu.com
 Slug: acf_unforgetable_select
  */
